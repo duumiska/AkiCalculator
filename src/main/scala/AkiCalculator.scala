@@ -1,8 +1,13 @@
 import scala.collection.mutable.Stack
 import scala.util.matching.Regex
 import scala.util.control.Breaks._
+import spray.json._
+import org.apache.commons.codec.binary.{ Base64 => ApacheBase64 }
 
 object AkiCalculator {
+
+	def decode(encoded: String) = new String(ApacheBase64.decodeBase64(encoded.getBytes))
+  	def encode(decoded: String) = new String(ApacheBase64.encodeBase64(decoded.getBytes))
 
 	def parseEquationString(s: String) : Array[String] = {
 // For some reason this regexp didn't work with longer numbers :( 
@@ -23,18 +28,15 @@ object AkiCalculator {
 		val calc = new Stack[Double]
 
 		if(s == null) {
-			println(s"Null Equation")
-			throw new IllegalArgumentException			
+			throw new IllegalArgumentException("Null equation")
 		}
 
 		if(s.length < 1) {
-			println(s"Empty Equation")
-			throw new IllegalArgumentException			
+			throw new IllegalArgumentException("Empty Equation")
 		}
 		
 		if(s.matches("(.*[a-z].*)|(.*[A-Z].*)")) {
-			println(s"Equation ($s) has illegal characters")
-			throw new IllegalArgumentException
+			throw new IllegalArgumentException(s"Equation ($s) has illegal characters")
 		}
 
 		val parsed = parseEquationString(s)
@@ -106,25 +108,22 @@ object AkiCalculator {
 		return calc.pop
 	}
 
-	def main(args: Array[String]) {
-		if(args.length < 1) {
-			try {
-				println("No parameter. Using example calculate \"5+((1+2)*4)-3\"")
-				var sum = calculate("5+((1+2)*4)-3")
-				println(s"5+((1+2)*4)-3 = $sum\n")
-			} catch {
-				case e: Exception => println("exception caught, bad equation: " + e);
-			}
+	def calculateJson(data: String): String = {
+		var decoded = decode(data)
+		
+		try {
+			var sum = calculate(decoded)					
+			val source = s"""{ "error": "false", "result": "$sum" }"""
+			val jsonAst = source.parseJson // or JsonParser(source)
+			return jsonAst.prettyPrint
+		} catch {
+			case e: Exception =>
+				var message = e.getMessage;
+				if(message == null)
+					message = "Unkown error"
+				val source = s"""{ "error": "true", "message": "Bad equation: $message" }"""
+				val jsonAst = source.parseJson // or JsonParser(source)
+				return jsonAst.prettyPrint
 		}
-		else {
-			for ( x <- args ) {
-				try {
-					var sum = calculate(x)
-					println(s"$x = $sum\n")
-				} catch {
-					case e: Exception => println("exception caught, bad equation: " + e);
-				}
-      		}
-      	}
 	}
 }
