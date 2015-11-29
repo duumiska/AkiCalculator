@@ -5,9 +5,9 @@ import util.Properties
 
 object CalculatorBay extends App with SimpleRoutingApp{
 	implicit val actorSystem = ActorSystem("on-spray-can")
-	val myPort = Properties.envOrElse("http.port", "8888").toInt // for Heroku compatibility
+	val myPort = Properties.envOrElse("PORT", "8888").toInt // for Heroku compatibility
 
-	startServer(interface = "localhost", port = myPort) {
+	startServer(interface = "0.0.0.0", port = myPort) {
 		get {
 			path("calculus" / "example") {
 				respondWithMediaType(MediaTypes.`application/json`) {
