@@ -1,11 +1,13 @@
 import spray.routing.SimpleRoutingApp
 import spray.http.MediaTypes
 import akka.actor.ActorSystem
+import util.Properties
 
 object CalculatorBay extends App with SimpleRoutingApp{
 	implicit val actorSystem = ActorSystem("on-spray-can")
+	val myPort = Properties.envOrElse("PORT", "8888").toInt // for Heroku compatibility
 
-	startServer(interface = "localhost", port = 8888) {
+	startServer(interface = "localhost", port = myPort) {
 		get {
 			path("calculus" / "example") {
 				respondWithMediaType(MediaTypes.`application/json`) {
