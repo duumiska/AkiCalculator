@@ -36,9 +36,9 @@ object AkiCalculator {
 					postfix.push(x)
 				case operator() =>
 					if(!stack.isEmpty)
-						//TODO o1 is left-associative and its precedence is less than or equal to that of o2, or
-						//TODO o1 is right associative, and has precedence less than that of o2,
-						if(stack.top == "+" || stack.top == "-" || stack.top == "*" || stack.top == "/")
+						if( (x == "*" || x == "/") && (stack.top == "*" || stack.top == "/") )
+							postfix.push(stack.pop)
+						else if( (x == "+" || x == "-") && (stack.top == "*" || stack.top == "/") )
 							postfix.push(stack.pop)
 					stack.push(x)
 				case "(" =>
