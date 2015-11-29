@@ -22,6 +22,7 @@ object AkiCalculator {
 
 	def calculate(s: String) : Double = {
 		val digit = new Regex("[0-9][0-9]*")
+		val decimal = new Regex("[0-9]*\\.[0-9]*")
 		val operator = new Regex("[\\+\\-\\*/]")
 		val stack = new Stack[String]
 		val postfix = new Stack[String]
@@ -45,6 +46,8 @@ object AkiCalculator {
 		parsed.foreach( x =>
 			x match {
 				case digit() =>
+					postfix.push(x)
+				case decimal() =>
 					postfix.push(x)
 				case operator() =>
 					if(!stack.isEmpty)
@@ -83,6 +86,8 @@ object AkiCalculator {
 			var popped:String = postfix2.pop();
 			popped match {
 				case digit() =>
+					calc.push(popped.toDouble)
+				case decimal() =>
 					calc.push(popped.toDouble)
 				case operator() =>
 					var tempsum: Double = 0
@@ -126,4 +131,27 @@ object AkiCalculator {
 				return jsonAst.prettyPrint
 		}
 	}
+/*
+	def main(args: Array[String]) {
+		if(args.length < 1) {
+			try {
+				println("No parameter. Using example calculate \"5+((1+2)*4)-3\"")
+				var sum = calculate("5+((1+2)*4)-3")
+				println(s"5+((1+2)*4)-3 = $sum\n")
+			} catch {
+				case e: Exception => println("exception caught, bad equation: " + e);
+			}
+		}
+		else {
+			for ( x <- args ) {
+				try {
+					var sum = calculate(x)
+					println(s"$x = $sum\n")
+				} catch {
+					case e: Exception => println("exception caught, bad equation: " + e);
+				}
+      		}
+      	}
+	}
+*/
 }
