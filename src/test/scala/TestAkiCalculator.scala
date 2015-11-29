@@ -23,6 +23,15 @@ class TestAkiCalculator extends FlatSpec {
     	}
   	}
 
+  "A AkiCalculator" should "throw IllegalArgumentException for empty equation" in {
+      intercept[IllegalArgumentException] {
+        AkiCalculator.calculate("")
+      }
+      intercept[IllegalArgumentException] {
+        AkiCalculator.calculate(null)
+      }
+    }
+
   	"A AkiCalculator" should "throw IllegalStateException if equation has too many operators" in {
     	intercept[IllegalStateException] {
     		AkiCalculator.calculate("2++2")

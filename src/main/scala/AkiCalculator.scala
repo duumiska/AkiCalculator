@@ -11,14 +11,8 @@ object AkiCalculator {
 //		return finder.findAllIn(clean).toArray
 		
 		//More straight forward way to parse equation
-		val clean = s.replaceAll(" ", "")
-		val clean1 = clean.replaceAll("\\+", "|\\+|")
-		val clean2 = clean1.replaceAll("\\-", "|\\-|")
-		val clean3 = clean2.replaceAll("\\*", "|\\*|")
-		val clean4 = clean3.replaceAll("\\/", "|\\/|")
-		val clean5 = clean4.replaceAll("\\(", "|\\(|")
-		val clean6 = clean5.replaceAll("\\)", "|\\)|")
-		return clean6.split("\\|")
+		val clean = s.replaceAll(" ", "").replaceAll("\\+", "|\\+|").replaceAll("\\-", "|\\-|").replaceAll("\\*", "|\\*|").replaceAll("\\/", "|\\/|").replaceAll("\\(", "|\\(|").replaceAll("\\)", "|\\)|")
+		return clean.split("\\|")
 	}
 
 	def calculate(s: String) : Double = {
@@ -27,6 +21,16 @@ object AkiCalculator {
 		val stack = new Stack[String]
 		val postfix = new Stack[String]
 		val calc = new Stack[Double]
+
+		if(s == null) {
+			println(s"Null Equation")
+			throw new IllegalArgumentException			
+		}
+
+		if(s.length < 1) {
+			println(s"Empty Equation")
+			throw new IllegalArgumentException			
+		}
 		
 		if(s.matches("(.*[a-z].*)|(.*[A-Z].*)")) {
 			println(s"Equation ($s) has illegal characters")
