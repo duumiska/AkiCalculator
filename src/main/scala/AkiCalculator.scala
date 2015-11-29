@@ -27,9 +27,15 @@ object AkiCalculator {
 		val stack = new Stack[String]
 		val postfix = new Stack[String]
 		val calc = new Stack[Double]
+		
+		if(s.matches("(.*[a-z].*)|(.*[A-Z].*)")) {
+			println(s"Equation ($s) has illegal characters")
+			throw new IllegalArgumentException
+		}
 
 		val parsed = parseEquationString(s)
 
+		// https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 		parsed.foreach( x =>
 			x match {
 				case digit() =>
@@ -56,14 +62,16 @@ object AkiCalculator {
 						}
 					}
 				case _ =>
-					//Just skipit, no harm done
+					//Just skipit, no harm done here
 			}
 		)
-		
+
 		while(!stack.isEmpty) {
 			var popped:String = stack.pop();
 			postfix.push(popped)
 		}
+
+		// https://en.wikipedia.org/wiki/Reverse_Polish_notation
 		val postfix2 = postfix.reverse
 		while(!postfix2.isEmpty) {
 			var popped:String = postfix2.pop();
@@ -72,6 +80,8 @@ object AkiCalculator {
 					calc.push(popped.toDouble)
 				case operator() =>
 					var tempsum: Double = 0
+					if(calc.length < 2)
+						 throw new IllegalStateException(s"not enough numbers ($s)");
 					var a: Double = calc.pop;
 					var b: Double = calc.pop;
 //					println(s"$b $popped $a")
@@ -85,8 +95,7 @@ object AkiCalculator {
 						tempsum = b / a;
 					calc.push(tempsum)
 				case _ => 
-					//TODO expections
-					println("grande error, should explode")
+					 throw new IllegalStateException(s"Illegal component ($popped)");
 			}
 		}
 
@@ -95,17 +104,25 @@ object AkiCalculator {
 
 	def main(args: Array[String]) {
 		if(args.length < 1) {
-			println("No parameter. Using example calculate \"5+((1+2)*4)-3\"")
-			var sum = calculate("5+((1+2)*4)-3")
-			println(s"5+((1+2)*4)-3 = $sum\n")
-			sum = calculate("7/3")
-			println(s"7/3 = $sum\n")
-			sum = calculate("100+200")
-			println(s"100+200 = $sum\n")
-			sum = calculate("1+2*2")
-			println(s"1+2*2 = $sum\n")
-			sum = calculate("2 * (23/(3*3)) - 23 * (2*3)")
-			println(s"2 * (23/(3*3)) - 23 * (2*3) = $sum\n")
+			try {
+				println("No parameter. Using example calculate \"5+((1+2)*4)-3\"")
+				var sum = calculate("5+((1+2)*4)-3")
+				println(s"5+((1+2)*4)-3 = $sum\n")
+				sum = calculate("7/3")
+				println(s"7/3 = $sum\n")
+				sum = calculate("100+200")
+				println(s"100+200 = $sum\n")
+				sum = calculate("1+2*2")
+				println(s"1+2*2 = $sum\n")
+				sum = calculate("2 * (23/(3*3)) - 23 * (2*3)")
+				println(s"2 * (23/(3*3)) - 23 * (2*3) = $sum\n")
+				sum = calculate("2+2+2")
+				println(s"2+2+2 = $sum\n")
+				sum = calculate("Bulls**t")
+				println(s"Bulls**t = $sum\n")
+			} catch {
+				case e: Exception => println("exception caught, bad equation: " + e);
+			}
 		}
 		else {
 			for ( x <- args ) {
