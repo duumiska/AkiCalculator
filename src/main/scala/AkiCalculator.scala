@@ -108,26 +108,18 @@ object AkiCalculator {
 				println("No parameter. Using example calculate \"5+((1+2)*4)-3\"")
 				var sum = calculate("5+((1+2)*4)-3")
 				println(s"5+((1+2)*4)-3 = $sum\n")
-				sum = calculate("7/3")
-				println(s"7/3 = $sum\n")
-				sum = calculate("100+200")
-				println(s"100+200 = $sum\n")
-				sum = calculate("1+2*2")
-				println(s"1+2*2 = $sum\n")
-				sum = calculate("2 * (23/(3*3)) - 23 * (2*3)")
-				println(s"2 * (23/(3*3)) - 23 * (2*3) = $sum\n")
-				sum = calculate("2+2+2")
-				println(s"2+2+2 = $sum\n")
-				sum = calculate("Bulls**t")
-				println(s"Bulls**t = $sum\n")
 			} catch {
 				case e: Exception => println("exception caught, bad equation: " + e);
 			}
 		}
 		else {
 			for ( x <- args ) {
-         		var sum = calculate(x)
-         		println(s"SUM = $sum\n")
+				try {
+					var sum = calculate(x)
+					println(s"$x = $sum\n")
+				} catch {
+					case e: Exception => println("exception caught, bad equation: " + e);
+				}
       		}
       	}
 	}
