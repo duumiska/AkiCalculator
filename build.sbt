@@ -18,3 +18,4 @@ lazy val root = (project in file(".")).
   )
 
 Revolver.settings
+enablePlugins(JavaServerAppPackaging)
