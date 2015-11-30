@@ -1,3 +1,5 @@
+/* No package, simple practice project, never to be used anywhere else */
+
 import spray.routing.SimpleRoutingApp
 import spray.http.MediaTypes
 import akka.actor.ActorSystem

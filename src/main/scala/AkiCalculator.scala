@@ -1,3 +1,5 @@
+/* No package, simple practice project, never to be used anywhere else */
+
 import scala.collection.mutable.Stack
 import scala.util.matching.Regex
 import scala.util.control.Breaks._
@@ -7,19 +9,27 @@ import org.apache.commons.codec.binary.{ Base64 => ApacheBase64 }
 object AkiCalculator {
 
 	def decode(encoded: String) = new String(ApacheBase64.decodeBase64(encoded.getBytes))
-  	def encode(decoded: String) = new String(ApacheBase64.encodeBase64(decoded.getBytes))
 
+	/** Splits calculation string to numbers, operators and parenthesis */
 	def parseEquationString(s: String) : Array[String] = {
-// For some reason this regexp didn't work with longer numbers :( 
-//		val finder = """([\\+-\\*/\\(\\)])|([0-9][0-9]*)""".r
-//		splitted.foreach(println)
-//		return finder.findAllIn(clean).toArray
-		
-		//More straight forward way to parse equation
+		//This could be nicer with kickass regex, good for now
 		val clean = s.replaceAll(" ", "").replaceAll("\\+", "|\\+|").replaceAll("\\-", "|\\-|").replaceAll("\\*", "|\\*|").replaceAll("\\/", "|\\/|").replaceAll("\\(", "|\\(|").replaceAll("\\)", "|\\)|")
 		return clean.split("\\|")
 	}
 
+	/** Parses and makes calculation for string, returns sum in Double
+  	*
+  	* Takes String with calculation, parses it and checks if it really is calculation
+  	* Uses following algorithms: 
+  	*   for parsing https://en.wikipedia.org/wiki/Shunting-yard_algorithm 
+  	*   for calculation https://en.wikipedia.org/wiki/Reverse_Polish_notation
+  	*
+  	* Throws IllegalArgumentException on bad String and
+  	*		 IllegalStateException on bad calculation
+  	*
+  	* Supports integer and decimal values and
+  	*  +, -, *, / operators and ( ) parenthesis
+  	*/
 	def calculate(s: String) : Double = {
 		val digit = new Regex("[0-9][0-9]*")
 		val decimal = new Regex("[0-9]*\\.[0-9]*")
@@ -65,9 +75,9 @@ object AkiCalculator {
 							if (popped != "(") {
 								postfix.push(popped)
 							}
-						 	else {
-						 		break;
-						 	}
+							else {
+								break;
+							}
 						}
 					}
 				case _ =>
@@ -113,13 +123,24 @@ object AkiCalculator {
 		return calc.pop
 	}
 
+
+	/** Decodes base64 calculation, calculates it and returns json
+  	*
+  	* Takes base64 encoded String containing calculation
+  	* Return JSON
+  	* - success
+  	*	{ "error": "false", "result": "$sum" }
+  	* 
+  	* - error
+  	*   { "error": "true", "message": "Bad equation: $message" }
+	*/
 	def calculateJson(data: String): String = {
 		var decoded = decode(data)
 		
 		try {
 			var sum = calculate(decoded)					
 			val source = s"""{ "error": "false", "result": "$sum" }"""
-			val jsonAst = source.parseJson // or JsonParser(source)
+			val jsonAst = source.parseJson
 			return jsonAst.prettyPrint
 		} catch {
 			case e: Exception =>
@@ -127,31 +148,8 @@ object AkiCalculator {
 				if(message == null)
 					message = "Unkown error"
 				val source = s"""{ "error": "true", "message": "Bad equation: $message" }"""
-				val jsonAst = source.parseJson // or JsonParser(source)
+				val jsonAst = source.parseJson
 				return jsonAst.prettyPrint
 		}
 	}
-/*
-	def main(args: Array[String]) {
-		if(args.length < 1) {
-			try {
-				println("No parameter. Using example calculate \"5+((1+2)*4)-3\"")
-				var sum = calculate("5+((1+2)*4)-3")
-				println(s"5+((1+2)*4)-3 = $sum\n")
-			} catch {
-				case e: Exception => println("exception caught, bad equation: " + e);
-			}
-		}
-		else {
-			for ( x <- args ) {
-				try {
-					var sum = calculate(x)
-					println(s"$x = $sum\n")
-				} catch {
-					case e: Exception => println("exception caught, bad equation: " + e);
-				}
-      		}
-      	}
-	}
-*/
 }
