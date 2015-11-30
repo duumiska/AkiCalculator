@@ -23,7 +23,7 @@ sbt
 And there you go
 
 This creates local web server with endpoints 
-- http://localhost:8888/example (makes following calculation 5+((1+2)*4)-3)
+- http://localhost:8888/calculus/example (makes following calculation 5+((1+2)*4)-3)
 - http://localhost:8888/calculus which takes base64 encoded calculation on parameter query
 
 ##Testing
